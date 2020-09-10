@@ -1,0 +1,31 @@
+Parallelisation
+
+ConnorFergusson_1299038_HannahTrebes_1306378
+
+AIM OF PROJECT:
+Compare the serial version of the algorithm to at least one method of parallelisation.
+You may use an existing parallel version of an algorithm or make up your own.
+Will need to set up an experimental framework enabling comparisson of algorithm performance by performing multiple runs.
+
+
+Programming Language of choice:
+ - Java
+
+Algorithm to implement:
+ - Ant Colony Optimisation
+
+Problem to be tackled:
+(A good problem is one that can't be solved with an efficient algorithm or brute force already. 
+Must be NP-hard.
+At least three different problem instances of increasing difficulty.)
+
+Statistics needed:
+With fair parameter optimisation applied to both the serial and parallel versions.
+ - Best case performance.
+ - Average case performance.
+ - Speedup statistics.
+ 
+ Report:
+  - 4-6 Pages, IEEE double column
+  - Problem
+  - Investigation
