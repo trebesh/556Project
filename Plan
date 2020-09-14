@@ -18,6 +18,7 @@ Problem to be tackled:
 (A good problem is one that can't be solved with an efficient algorithm or brute force already. 
 Must be NP-hard.
 At least three different problem instances of increasing difficulty.)
+ - Set Cover Problem
 
 Statistics needed:
 With fair parameter optimisation applied to both the serial and parallel versions.
@@ -29,3 +30,16 @@ With fair parameter optimisation applied to both the serial and parallel version
   - 4-6 Pages, IEEE double column
   - Problem
   - Investigation
+
+
+IMPLEMENTATION
+SCP
+ - Universe - Set of elements 1 to n
+ - Sets - sets of varying size containing elements between 1 and n
+ - Solution - Collection of sets whose union equals the universe
+ACO
+ - Ant - A class that makes decissions about the next step toward a solution dependant on any existing trail and the attractiveness of the solution, and lays a 'pheremone' trail
+  - Trail - The path taken by an Ant. Strength fades over time
+ - Colony - Set of Ants 
+ 
+ 
