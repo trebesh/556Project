@@ -41,5 +41,11 @@ ACO
  - Ant - A class that makes decissions about the next step toward a solution dependant on any existing trail and the attractiveness of the solution, and lays a 'pheremone' trail
   - Trail - The path taken by an Ant. Strength fades over time
  - Colony - Set of Ants 
+ - Weight edges based on duplicate set elements in next step and new elements in next step.
  
- 
+METHODS
+Get problem instance
+Create ants
+Weight next step
+Unleash ants
+
