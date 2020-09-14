@@ -11,9 +11,14 @@ end procedure
 generateSolutions()
 
 
-
 ApplyLocalSearch()
 Kth ant moves from state x to state y with probability - Pxy = (pheremone from x to y * desireability based on distance) / the state leven * attractiveness of all other states
-
+ArrayList allProbabilities
+while(ant can move forward)
+    foreach(possibleMove)
+        generate probability of moving there
+        add probability to the arraylist
+    select one of the options
+    move ant
 
 PheromoneUpdate()
