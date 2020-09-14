@@ -1,0 +1,19 @@
+Ant colony algorithm
+
+procedure ACO_MetaHeuristic is
+    while not_termination do
+        generateSolutions()
+        ApplyLocalSearch()
+        pheromoneUpdate()
+    repeat
+end procedure
+
+generateSolutions()
+
+
+
+ApplyLocalSearch()
+Kth ant moves from state x to state y with probability - Pxy = (pheremone from x to y * desireability based on distance) / the state leven * attractiveness of all other states
+
+
+PheromoneUpdate()
