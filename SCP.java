@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class SCP {
 
@@ -25,7 +26,8 @@ public class SCP {
     public static void main(String[] args) {
         try{
             filename = args[0];
-
+            colonySize = Integer.parseInt(args[1]);
+            generationSize = Integer.parseInt(args[2]);
             //Read in the file
             getProblem(filename);
 
@@ -33,8 +35,7 @@ public class SCP {
             createColony();
 
             //Run generation till all ants have visited all nodes
-            runGeneration();
-
+            runGeneration(generation);
             printColony();
         }catch (Exception e){
             System.out.println("Arguments not in correct format");
@@ -43,7 +44,7 @@ public class SCP {
 
     }
 
-// Reads in the problem Instance to be dealt with
+    // Reads in the problem Instance to be dealt with
     public static void getProblem(String filename){
         String line = "";
         try {
@@ -57,6 +58,7 @@ public class SCP {
             for (int i = 0; i < inString.length; i++) {
                 universe.add(Integer.parseInt(inString[i]));
             }
+            Collections.sort(universe);
             System.out.println("Universe:" + universe);
 
             //Gather in the sets
@@ -85,16 +87,14 @@ public class SCP {
         }
     }
 
-// Creates the colony and first generation of Ants
+    // Creates the colony and first generation of Ants
     public static void createColony(){
         try {
             //Figure out how big the colony and each generation should be - relative to the number of sets in the search space
             // Naieve - one ant for every set in sets, one generation
-            colonySize = sets.size();
-            generationSize = sets.size();
 
             //Create the colony
-            while (colony.size() <= colonySize) {
+            while (colony.size() < colonySize) {
                 colony.add(new Ant());
             }
 
@@ -114,16 +114,17 @@ public class SCP {
         }
     }
 
-// Runs a generation through till there are no places that each hasn't visited
-    public static void runGeneration(){
-        for (Ant ant: colony) {
-            while (ant.seenAll == false){
-                ant.addToPath(ant.getNextStep(sets));
+    // Runs a generation through till there are no places that each hasn't visited
+    public static void runGeneration(int gen){
+        for (int i = gen; i<gen+10;i++) {
+            while (colony.get(i).seenAll == false && colony.get(i).seenAllNumbers(universe, sets) == false){
+                colony.get(i).addToPath(colony.get(i).getNextStep(sets));
             }
         }
     }
 
-//Auxillary method to output the colony
+
+    //Auxillary method to output the colony
     public static void printColony(){
         for (int i = 0; i < colony.size(); i++) {
             System.out.println("Ant " + i  + " has path " + colony.get(i).toString());
