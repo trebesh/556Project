@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Collections;
 
 public class Ant {
 
@@ -7,20 +8,20 @@ public class Ant {
     public static ArrayList<Integer> Pheromones = new ArrayList<Integer>();
     public boolean seenAll = false;
 
-//creates an ant object
+    //creates an ant object
     public Ant()
     { }
-//adds the next step to the ants path
+    //adds the next step to the ants path
     public void addToPath(int nextStep)
     {
         if(nextStep != -1) Path.add(nextStep);
     }
-//returns the ants current path
+    //returns the ants current path
     public ArrayList<Integer> getPath()
     {
         return Path;
     }
-//gets the next step for the ant
+    //gets the next step for the ant
     public int getNextStep(ArrayList<ArrayList<Integer>> sets)//, ArrayList<Integer> pheromones)
     {
         if (!seenAll) {
@@ -31,18 +32,6 @@ public class Ant {
                 if (!hasInPath(i)) options.add(i);
                 //System.out.println("Options size: " + options.size());
             }
-
-            //        for (int i = 0; i < sets.size(); i++) {
-            //            int found = 0;
-            //            for (int j : Path) {
-            //                if (i == j) {
-            //                    found = 1;
-            //                }
-            //            }
-            //            if (found == 0) {
-            //                options.add(i);
-            //            }
-            //        }
             try {
                 if (options.size() != 0) {
                     Random rand = new Random();
@@ -60,7 +49,7 @@ public class Ant {
         else return -1;
     }
 
-//Checks if a node/set is already in the ants path
+    //Checks if a node/set is already in the ants path
     public boolean hasInPath(int target){
         for (int i: Path) {
             if (i == target) return true;
@@ -68,8 +57,29 @@ public class Ant {
         return  false;
     }
 
-//Print a string representation of the Ant
+    //Print a string representation of the Ant
     public String toString(){
         return this.Path.toString();
+    }
+
+    public boolean seenAllNumbers(ArrayList<Integer> Universe, ArrayList<ArrayList<Integer>> sets)
+    {
+        ArrayList<Integer> seen = new ArrayList<Integer>();
+        for(int i: Path)
+        {
+            for(int j:sets.get(i))
+            {
+                if(!(seen.contains(j)))
+                {
+                    seen.add(j);
+                }
+            }
+        }
+        Collections.sort(seen);
+        if(seen.equals(Universe))
+        {
+            return true;
+        }
+        return false;
     }
 }
