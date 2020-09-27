@@ -4,17 +4,21 @@ import java.util.Collections;
 
 public class Ant {
 
+    public ArrayList<Integer> seenNumbers = new ArrayList<Integer>();
     public ArrayList<Integer> Path = new ArrayList<Integer>();
     public static ArrayList<Integer> Pheromones = new ArrayList<Integer>();
     public boolean seenAll = false;
 
-    //creates an ant object
+    //creates an ant objects
     public Ant()
     { }
     //adds the next step to the ants path
     public void addToPath(int nextStep)
     {
-        if(nextStep != -1) Path.add(nextStep);
+        if(nextStep != -1)
+        {
+            Path.add(nextStep);
+        }
     }
     //returns the ants current path
     public ArrayList<Integer> getPath()
@@ -34,10 +38,26 @@ public class Ant {
             }
             try {
                 if (options.size() != 0) {
-                    Random rand = new Random();
-                    int randStep = rand.nextInt(options.size());
-                    //System.out.println("RandStep: " + randStep);
-                    nextStep = options.get(randStep);
+                    ArrayList<Integer> pathDistance = new ArrayList<Integer>();
+                    pathDistance = getLength(options, sets);
+                    int maxDistance = 0;
+                    int maxDistancePos = 0;
+                    for(int i = 0; i<pathDistance.size(); i++)
+                    {
+                        if(pathDistance.get(i) > maxDistance)
+                        {
+                            maxDistance = pathDistance.get(i);
+                            maxDistancePos = i;
+                        }
+                    }
+                    nextStep = options.get(maxDistancePos);
+                    for(int i:sets.get(nextStep))
+                    {
+                        if(!(seenNumbers.contains(i)))
+                        {
+                            seenNumbers.add(i);
+                        }
+                    }
                 } else seenAll = true;
             } catch (Exception e) {
                 System.out.println();
@@ -81,5 +101,36 @@ public class Ant {
             return true;
         }
         return false;
+    }
+
+    public ArrayList<Integer> getLength(ArrayList<Integer> options, ArrayList<ArrayList<Integer>> sets)
+    {
+        ArrayList<Integer> pathDistance = new ArrayList<Integer>();
+        for(int i = 0; i<options.size(); i++)
+        {
+            int score = 0;
+            for(int j:sets.get(options.get(i)))
+            {
+                if(!(seenNumbers.contains(j)))
+                {
+                    score+=1;
+                }
+            }
+            pathDistance.add(score);
+        }
+
+        for(int i:pathDistance)
+        {
+            System.out.print(i + " ");
+        }
+        System.out.println("");
+        return pathDistance;
+    }
+
+    public void startPositions(ArrayList<ArrayList<Integer>> sets)
+    {
+        Random rand = new Random();
+        int randStep = rand.nextInt(sets.size());
+        Path.add(randStep);
     }
 }

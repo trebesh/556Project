@@ -38,8 +38,7 @@ public class SCP {
             runGeneration(generation);
             printColony();
         }catch (Exception e){
-            System.out.println("Arguments not in correct format");
-            System.out.println("Try: FileName.txt");
+            e.printStackTrace();
         }
 
     }
@@ -92,19 +91,11 @@ public class SCP {
         try {
             //Figure out how big the colony and each generation should be - relative to the number of sets in the search space
             // Naieve - one ant for every set in sets, one generation
-
+            
             //Create the colony
             while (colony.size() < colonySize) {
                 colony.add(new Ant());
             }
-
-
-            //Send out the first generation (gen 0) 1 step
-            for (Ant ant : colony) {
-                ant.addToPath(ant.getNextStep(sets));
-            }
-
-            //printColony();
 
         }catch(Exception e){
             System.out.println("ERROR in createColony");
@@ -116,7 +107,13 @@ public class SCP {
 
     // Runs a generation through till there are no places that each hasn't visited
     public static void runGeneration(int gen){
-        for (int i = gen; i<gen+10;i++) {
+         //Send out the first generation (gen 0) 1 step
+         for (int i=(generation + generationSize - 1); i>generation; i--) {
+            colony.get(i).startPositions(sets);
+        }
+
+
+        for (int i = gen; i<gen+generationSize;i++) {
             while (colony.get(i).seenAll == false && colony.get(i).seenAllNumbers(universe, sets) == false){
                 colony.get(i).addToPath(colony.get(i).getNextStep(sets));
             }
@@ -127,7 +124,7 @@ public class SCP {
     //Auxillary method to output the colony
     public static void printColony(){
         for (int i = 0; i < colony.size(); i++) {
-            System.out.println("Ant " + i  + " has path " + colony.get(i).toString());
+            System.out.println("Ant " + (i + 1)  + " has path " + colony.get(i).toString());
         }
     }
 }
