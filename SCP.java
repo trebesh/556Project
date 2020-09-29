@@ -26,12 +26,15 @@ public class SCP {
     public static ArrayList<Integer> set = new ArrayList<Integer>();
     public static ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
     public static String[] inString;
+    public static ArrayList<Integer> bestPath = new ArrayList<Integer>();
+
 
     public static void main(String[] args) {
         try{
             filename = args[0];
             colonySize = Integer.parseInt(args[1]);
             generationSize = Integer.parseInt(args[2]);
+            if((colonySize % generationSize) != 0) throw new Exception("Generation size must be an integer factor of colony size.");
             numGenerations = (colonySize/generationSize);
 
             //Read in the file
@@ -44,9 +47,25 @@ public class SCP {
             for (int i = 0; i < numGenerations; i++)runGeneration();
 
             //Output results in the form of the colony
+            System.out.println();
+            System.out.println("Final Paths: ");
             printColony();
+
+            //Output final Results
+            int bi = 0;
+            for (int i = bi; i < colonySize; i++) {
+                if(colony.get(i).Path.size() < bestPath.size()) {
+                    bestPath = colony.get(i).Path;
+                    bi = i;
+                }
+            }
+            System.out.println();
+            System.out.println("Optimal Path:");
+            System.out.println("Ant " + bi + " " + colony.get(bi).toString());
+
+
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println("ERROR in Main: " + e.getMessage());
         }
 
     }
@@ -124,7 +143,7 @@ public class SCP {
         //move the ants out until they have found a valid solution or seen all nodes
         for (int i = 0; i<generationSize;i++) {
             while (colony.get(i + adjust).seenAll == false && colony.get(i + adjust).seenAllNumbers(universe, sets) == false){
-                colony.get(i + adjust).addToPath(colony.get(i + adjust).getNextStep(sets));
+                colony.get(i + adjust).addToPath(colony.get(i + adjust).getNextStep(sets, colony));
             }
         }
 
@@ -132,7 +151,8 @@ public class SCP {
         degradeTrails(adjust);
 
         generation++;
-//        System.out.println("Generation: " + generation);
+        System.out.println("Generation: " + generation);
+        printColony();
 //        System.out.println("Adjust by " + adjust);
     }
 

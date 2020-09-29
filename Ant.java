@@ -31,7 +31,7 @@ public class Ant {
         return Path;
     }
     //gets the next step for the ant
-    public int getNextStep(ArrayList<ArrayList<Integer>> sets)//, ArrayList<Integer> pheromones)
+    public int getNextStep(ArrayList<ArrayList<Integer>> sets, ArrayList<Ant> colony)//, ArrayList<Integer> pheromones)
     {
         if (!seenAll) {
             int nextStep = -1;
