@@ -8,10 +8,15 @@ public class Ant {
     public ArrayList<Integer> Path = new ArrayList<Integer>();
     public static ArrayList<Integer> Pheromones = new ArrayList<Integer>();
     public boolean seenAll = false;
+    public float trailStrength = 0;
+    //How much to degrade this ants trail by after each iteration
+    public int degradeBy = 10;
 
-    //creates an ant objects
-    public Ant()
-    { }
+    //creates an ant object
+    public Ant(int gens)
+    {
+        trailStrength = gens - 1;
+    }
     //adds the next step to the ants path
     public void addToPath(int nextStep)
     {
@@ -79,7 +84,7 @@ public class Ant {
 
     //Print a string representation of the Ant
     public String toString(){
-        return this.Path.toString();
+        return "Path: " + this.Path.toString() + " Strength: " + trailStrength;
     }
 
     public boolean seenAllNumbers(ArrayList<Integer> Universe, ArrayList<ArrayList<Integer>> sets)
@@ -119,11 +124,11 @@ public class Ant {
             pathDistance.add(score);
         }
 
-        for(int i:pathDistance)
-        {
-            System.out.print(i + " ");
-        }
-        System.out.println("");
+//        for(int i:pathDistance)
+//        {
+//            System.out.print(i + " ");
+//        }
+//        System.out.println("");
         return pathDistance;
     }
 
@@ -132,5 +137,10 @@ public class Ant {
         Random rand = new Random();
         int randStep = rand.nextInt(sets.size());
         Path.add(randStep);
+    }
+
+    //Method to degrade the trail of this ant by the proportion declared in degradeBy
+    public void degradeTrail(){
+        trailStrength = trailStrength - (trailStrength/degradeBy);
     }
 }

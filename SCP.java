@@ -1,6 +1,9 @@
 /*
   Class to produce solutions to the Set Cover Problem by implementing parellel Ant Colony Optimisation.
     ConnorFergusson_1299038_HannahTrebes_1306378
+
+    Command Line:
+    javac *.java && java SCP <TEST_FILE>.txt <COLONY_SIZE> <GENERATION_SIZE>
 */
 
 import java.io.BufferedReader;
@@ -14,6 +17,7 @@ public class SCP {
     public static int colonySize = 0;
     public static int generation = 0;
     public static int generationSize = 0;
+    public static int numGenerations = 0;
 
     public static String filename;
     public static BufferedReader reader;
@@ -28,6 +32,8 @@ public class SCP {
             filename = args[0];
             colonySize = Integer.parseInt(args[1]);
             generationSize = Integer.parseInt(args[2]);
+            numGenerations = (colonySize/generationSize);
+
             //Read in the file
             getProblem(filename);
 
@@ -35,7 +41,9 @@ public class SCP {
             createColony();
 
             //Run generation till all ants have visited all nodes
-            runGeneration(generation);
+            for (int i = 0; i < numGenerations; i++)runGeneration();
+
+            //Output results in the form of the colony
             printColony();
         }catch (Exception e){
             e.printStackTrace();
@@ -94,7 +102,7 @@ public class SCP {
             
             //Create the colony
             while (colony.size() < colonySize) {
-                colony.add(new Ant());
+                colony.add(new Ant(numGenerations));
             }
 
         }catch(Exception e){
@@ -105,26 +113,41 @@ public class SCP {
         }
     }
 
-    // Runs a generation through till there are no places that each hasn't visited
-    public static void runGeneration(int gen){
-         //Send out the first generation (gen 0) 1 step
-         for (int i=(generation + generationSize - 1); i>generation; i--) {
-            colony.get(i).startPositions(sets);
+    // Runs the current generation through
+    public static void runGeneration(){
+        int adjust = generationSize*generation;
+         //Send out the ants to their start points
+         for (int i = generationSize -1; i>0; i--) {
+            colony.get(i + adjust).startPositions(sets);
         }
 
-
-        for (int i = gen; i<gen+generationSize;i++) {
-            while (colony.get(i).seenAll == false && colony.get(i).seenAllNumbers(universe, sets) == false){
-                colony.get(i).addToPath(colony.get(i).getNextStep(sets));
+        //move the ants out until they have found a valid solution or seen all nodes
+        for (int i = 0; i<generationSize;i++) {
+            while (colony.get(i + adjust).seenAll == false && colony.get(i + adjust).seenAllNumbers(universe, sets) == false){
+                colony.get(i + adjust).addToPath(colony.get(i + adjust).getNextStep(sets));
             }
         }
+
+        //Decrease the trail strength of previous generations
+        degradeTrails(adjust);
+
+        generation++;
+//        System.out.println("Generation: " + generation);
+//        System.out.println("Adjust by " + adjust);
+    }
+
+    public static void degradeTrails(int upto){
+        for (int i = 0; i < upto; i++){
+            colony.get(i).degradeTrail();
+        }
+
     }
 
 
     //Auxillary method to output the colony
     public static void printColony(){
         for (int i = 0; i < colony.size(); i++) {
-            System.out.println("Ant " + (i + 1)  + " has path " + colony.get(i).toString());
+            System.out.println("Ant " + (i + 1) + " " + colony.get(i).toString());
         }
     }
 }
