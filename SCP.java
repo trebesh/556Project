@@ -1,23 +1,18 @@
 /*
   Class to produce solutions to the Set Cover Problem by implementing parellel Ant Colony Optimisation.
     ConnorFergusson_1299038_HannahTrebes_1306378
-
-    Command Line:
-    javac *.java && java SCP <TEST_FILE>.txt <COLONY_SIZE> <GENERATION_SIZE>
 */
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class SCP {
 
     public static int colonySize = 0;
     public static int generation = 0;
     public static int generationSize = 0;
-    public static int numGenerations = 0;
 
     public static String filename;
     public static BufferedReader reader;
@@ -26,16 +21,10 @@ public class SCP {
     public static ArrayList<Integer> set = new ArrayList<Integer>();
     public static ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
     public static String[] inString;
-    public static ArrayList<Integer> bestPath = new ArrayList<Integer>();
-    public static ArrayList<Integer> Pheromones = new ArrayList<Integer>();
 
     public static void main(String[] args) {
         try{
             filename = args[0];
-            colonySize = Integer.parseInt(args[1]);
-            generationSize = Integer.parseInt(args[2]);
-            if((colonySize % generationSize) != 0) throw new Exception("Generation size must be an integer factor of colony size.");
-            numGenerations = (colonySize/generationSize);
 
             //Read in the file
             getProblem(filename);
@@ -44,40 +33,17 @@ public class SCP {
             createColony();
 
             //Run generation till all ants have visited all nodes
-            for (int i = 0; i < numGenerations; i++)
-            {
-                runGeneration();
-                for(int j =0; j<Pheromones.size(); j++)
-                {
-                    Pheromones.set(j, Pheromones.get(j) - 1);
-                }
-            }
+            runGeneration();
 
-            //Output results in the form of the colony
-            System.out.println();
-            System.out.println("Final Paths: ");
             printColony();
-
-            //Output final Results
-            int bi = 0;
-            for (int i = bi; i < colonySize; i++) {
-                if(colony.get(i).Path.size() < bestPath.size()) {
-                    bestPath = colony.get(i).Path;
-                    bi = i;
-                }
-            }
-            System.out.println();
-            System.out.println("Optimal Path:");
-            System.out.println("Ant " + bi + " " + colony.get(bi).toString());
-
-
         }catch (Exception e){
-            System.out.println("ERROR in Main: " + e.getMessage());
+            System.out.println("Arguments not in correct format");
+            System.out.println("Try: FileName.txt");
         }
 
     }
 
-    // Reads in the problem Instance to be dealt with
+// Reads in the problem Instance to be dealt with
     public static void getProblem(String filename){
         String line = "";
         try {
@@ -91,7 +57,6 @@ public class SCP {
             for (int i = 0; i < inString.length; i++) {
                 universe.add(Integer.parseInt(inString[i]));
             }
-            Collections.sort(universe);
             System.out.println("Universe:" + universe);
 
             //Gather in the sets
@@ -103,7 +68,6 @@ public class SCP {
                 }
                 //System.out.println("Set: " + set);
                 sets.add(set);
-                Pheromones.add(1);
                 set = new ArrayList<Integer>();
                 line = reader.readLine();
             }
@@ -121,16 +85,26 @@ public class SCP {
         }
     }
 
-    // Creates the colony and first generation of Ants
+// Creates the colony and first generation of Ants
     public static void createColony(){
         try {
             //Figure out how big the colony and each generation should be - relative to the number of sets in the search space
             // Naieve - one ant for every set in sets, one generation
-            
+            colonySize = sets.size();
+            generationSize = sets.size();
+
             //Create the colony
-            while (colony.size() < colonySize) {
+            while (colony.size() <= colonySize) {
                 colony.add(new Ant());
             }
+
+
+            //Send out the first generation (gen 0) 1 step
+            for (Ant ant : colony) {
+                ant.addToPath(ant.getNextStep(sets));
+            }
+
+            //printColony();
 
         }catch(Exception e){
             System.out.println("ERROR in createColony");
@@ -140,41 +114,19 @@ public class SCP {
         }
     }
 
-    // Runs the current generation through
+// Runs a generation through till there are no places that each hasn't visited
     public static void runGeneration(){
-        int adjust = generationSize*generation;
-        ArrayList<Integer> stepsVisited = new ArrayList<Integer>();
-         //Send out the ants to their start points
-         for (int i = generationSize -1; i>0; i--) {
-            colony.get(i + adjust).startPositions(sets);
-        }
-        for(int i = 0; i<Pheromones.size();i++)
-        {
-            stepsVisited.add(0);
-        }
-
-        //move the ants out until they have found a valid solution or seen all nodes
-        for (int i = 0; i<generationSize;i++) {
-            while (colony.get(i + adjust).seenAll == false && colony.get(i + adjust).seenAllNumbers(universe, sets) == false){
-                int antStep = colony.get(i + adjust).addToPath(colony.get(i + adjust).getNextStep(sets, colony, Pheromones));
-                stepsVisited.set(antStep, (stepsVisited.get(antStep) + 1));
+        for (Ant ant: colony) {
+            while (ant.seenAll == false){
+                ant.addToPath(ant.getNextStep(sets));
             }
         }
-        for(int i = 0; i<Pheromones.size(); i++)
-        {
-            Pheromones.set(i, (Pheromones.get(i) + stepsVisited.get(i)));
-        }
-
-        generation++;
-        System.out.println("Generation: " + generation);
-        printColony();
-//        System.out.println("Adjust by " + adjust);
     }
 
-    //Auxillary method to output the colony
+//Auxillary method to output the colony
     public static void printColony(){
         for (int i = 0; i < colony.size(); i++) {
-            System.out.println("Ant " + (i + 1) + " " + colony.get(i).toString());
+            System.out.println("Ant " + i  + " has path " + colony.get(i).toString());
         }
     }
 }
