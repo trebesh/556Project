@@ -1,29 +1,30 @@
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Collections;
+import java.util.Random;
 
 public class Ant {
 
     public ArrayList<Integer> seenNumbers = new ArrayList<Integer>();
     public ArrayList<Integer> Path = new ArrayList<Integer>();
-    public static ArrayList<Integer> Pheromones = new ArrayList<Integer>();
     public boolean seenAll = false;
-    public float trailStrength = 0;
     //How much to degrade this ants trail by after each iteration
     public int degradeBy = 10;
 
     //creates an ant object
-    public Ant(int gens)
+    public Ant()
     {
-        trailStrength = gens - 1;
+        
     }
     //adds the next step to the ants path
-    public void addToPath(int nextStep)
+    public int addToPath(int nextStep)
     {
         if(nextStep != -1)
         {
             Path.add(nextStep);
+            return nextStep;
         }
+        return -1;
     }
     //returns the ants current path
     public ArrayList<Integer> getPath()
@@ -31,10 +32,11 @@ public class Ant {
         return Path;
     }
     //gets the next step for the ant
-    public int getNextStep(ArrayList<ArrayList<Integer>> sets, ArrayList<Ant> colony)//, ArrayList<Integer> pheromones)
+    public int getNextStep(ArrayList<ArrayList<Integer>> sets, ArrayList<Ant> colony, ArrayList<Integer> pheromones)//, ArrayList<Integer> pheromones)
     {
         if (!seenAll) {
             int nextStep = -1;
+            int totalSteps = 0;
             ArrayList<Integer> options = new ArrayList<Integer>();
 
             for (int i = 0; i < sets.size(); i++) {
@@ -45,22 +47,47 @@ public class Ant {
                 if (options.size() != 0) {
                     ArrayList<Integer> pathDistance = new ArrayList<Integer>();
                     pathDistance = getLength(options, sets);
-                    int maxDistance = 0;
-                    int maxDistancePos = 0;
-                    for(int i = 0; i<pathDistance.size(); i++)
+                    for (int i = 0; i<pathDistance.size(); i++)
                     {
-                        if(pathDistance.get(i) > maxDistance)
+                        if(pathDistance.get(i) == 0)
                         {
-                            maxDistance = pathDistance.get(i);
-                            maxDistancePos = i;
+                            pathDistance.remove(i);
+                            options.remove(i);
                         }
                     }
-                    nextStep = options.get(maxDistancePos);
-                    for(int i:sets.get(nextStep))
+                    int optionNumber = 0;
+                    for(int i: options)
                     {
-                        if(!(seenNumbers.contains(i)))
+                        if(pheromones.get(i) != 0)
                         {
-                            seenNumbers.add(i);
+                            pathDistance.set(optionNumber, (pathDistance.get(optionNumber) * pheromones.get(i)));
+                        }
+                    }
+                    for(int k = 0; k<pathDistance.size(); k++)
+                    {
+                        totalSteps += pathDistance.get(k);
+                    }
+
+                    Random rand = new Random();
+                    int index = rand.nextInt(totalSteps);
+                    int sum = 0;
+                    int i=0;
+                    while(sum < index ) 
+                    {
+                        sum = sum + pathDistance.get(i);
+                        if(sum <= index)
+                        {
+                            i++;
+                        }
+                    }
+                    nextStep = i;
+
+
+                    for(int l:sets.get(nextStep))
+                    {
+                        if(!(seenNumbers.contains(l)))
+                        {
+                            seenNumbers.add(l);
                         }
                     }
                 } else seenAll = true;
@@ -84,7 +111,7 @@ public class Ant {
 
     //Print a string representation of the Ant
     public String toString(){
-        return "Path: " + this.Path.toString() + " Strength: " + trailStrength;
+        return "Path: " + this.Path.toString();
     }
 
     public boolean seenAllNumbers(ArrayList<Integer> Universe, ArrayList<ArrayList<Integer>> sets)
@@ -113,15 +140,22 @@ public class Ant {
         ArrayList<Integer> pathDistance = new ArrayList<Integer>();
         for(int i = 0; i<options.size(); i++)
         {
-            int score = 0;
-            for(int j:sets.get(options.get(i)))
+            if(options.size() != sets.size())
             {
-                if(!(seenNumbers.contains(j)))
+                int score = 0;
+                for(int j:sets.get(options.get(i)))
                 {
-                    score+=1;
+                    if(!(seenNumbers.contains(j)))
+                    {
+                        score+=1;
+                    }
                 }
+                pathDistance.add(score);
             }
-            pathDistance.add(score);
+            else
+            {
+                pathDistance.add(1);
+            }
         }
 
 //        for(int i:pathDistance)
@@ -139,8 +173,4 @@ public class Ant {
         Path.add(randStep);
     }
 
-    //Method to degrade the trail of this ant by the proportion declared in degradeBy
-    public void degradeTrail(){
-        trailStrength = trailStrength - (trailStrength/degradeBy);
-    }
 }
