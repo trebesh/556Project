@@ -27,7 +27,7 @@ public class SCP {
     public static ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
     public static String[] inString;
     public static ArrayList<Integer> bestPath = new ArrayList<Integer>();
-
+    public static ArrayList<Integer> Pheromones = new ArrayList<Integer>();
 
     public static void main(String[] args) {
         try{
@@ -44,7 +44,14 @@ public class SCP {
             createColony();
 
             //Run generation till all ants have visited all nodes
-            for (int i = 0; i < numGenerations; i++)runGeneration();
+            for (int i = 0; i < numGenerations; i++)
+            {
+                runGeneration();
+                for(int j =0; j<Pheromones.size(); j++)
+                {
+                    Pheromones.set(j, Pheromones.get(j) - 1);
+                }
+            }
 
             //Output results in the form of the colony
             System.out.println();
@@ -96,6 +103,7 @@ public class SCP {
                 }
                 //System.out.println("Set: " + set);
                 sets.add(set);
+                Pheromones.add(1);
                 set = new ArrayList<Integer>();
                 line = reader.readLine();
             }
@@ -121,7 +129,7 @@ public class SCP {
             
             //Create the colony
             while (colony.size() < colonySize) {
-                colony.add(new Ant(numGenerations));
+                colony.add(new Ant());
             }
 
         }catch(Exception e){
@@ -135,34 +143,33 @@ public class SCP {
     // Runs the current generation through
     public static void runGeneration(){
         int adjust = generationSize*generation;
+        ArrayList<Integer> stepsVisited = new ArrayList<Integer>();
          //Send out the ants to their start points
          for (int i = generationSize -1; i>0; i--) {
             colony.get(i + adjust).startPositions(sets);
+        }
+        for(int i = 0; i<Pheromones.size();i++)
+        {
+            stepsVisited.add(0);
         }
 
         //move the ants out until they have found a valid solution or seen all nodes
         for (int i = 0; i<generationSize;i++) {
             while (colony.get(i + adjust).seenAll == false && colony.get(i + adjust).seenAllNumbers(universe, sets) == false){
-                colony.get(i + adjust).addToPath(colony.get(i + adjust).getNextStep(sets, colony));
+                int antStep = colony.get(i + adjust).addToPath(colony.get(i + adjust).getNextStep(sets, colony, Pheromones));
+                stepsVisited.set(antStep, (stepsVisited.get(antStep) + 1));
             }
         }
-
-        //Decrease the trail strength of previous generations
-        degradeTrails(adjust);
+        for(int i = 0; i<Pheromones.size(); i++)
+        {
+            Pheromones.set(i, (Pheromones.get(i) + stepsVisited.get(i)));
+        }
 
         generation++;
         System.out.println("Generation: " + generation);
         printColony();
 //        System.out.println("Adjust by " + adjust);
     }
-
-    public static void degradeTrails(int upto){
-        for (int i = 0; i < upto; i++){
-            colony.get(i).degradeTrail();
-        }
-
-    }
-
 
     //Auxillary method to output the colony
     public static void printColony(){
