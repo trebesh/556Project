@@ -12,7 +12,7 @@ public class Ant {
     //creates an ant object
     public Ant(){    }
     //adds the next step to the ants path
-    public void addToPath(int nextStep)
+    public synchronized void addToPath(int nextStep)
     {
         if(nextStep != -1)
         {
@@ -25,7 +25,7 @@ public class Ant {
         return Path;
     }
     //gets the next step for the ant
-    public int getNextStep(ArrayList<ArrayList<Integer>> sets, ArrayList<Integer> pheremones)
+    public synchronized int getNextStep(ArrayList<ArrayList<Integer>> sets, ArrayList<Integer> pheremones)
     {
         ArrayList<Integer> pathWeight = new ArrayList<Integer>();
         ArrayList<Integer> ranges = new ArrayList<Integer>();
@@ -74,6 +74,48 @@ public class Ant {
                         ranges.add(range);
                     }
 
+                    if(range < 0) {
+                        range = 0;
+                        for (int i = 0; i < pheremones.size(); i++){
+                            pheremones.set(i, pheremones.get(i)/2);
+                        }
+
+                        for (int i = 0; i < sets.size(); i++) {
+                            if (!hasInPath(i)) {
+                                options.add(i);
+                                pathWeight.add(pheremones.get(i));
+                            }
+                            //System.out.println("Options size: " + options.size());
+                        }
+                        if (options.size() != 0) {
+                            pathDistance = new ArrayList<Integer>();
+                            pathDistance = getLength(options, sets);
+
+                            for (int i = 0; i < pathDistance.size(); i++) {
+                                if (pathDistance.get(i) == 0) {
+                                    pathDistance.remove(i);
+                                    options.remove(i);
+                                    pathWeight.remove(i)
+                                    ;
+                                }
+                            }
+
+                            //Weight the paths
+                            //System.out.println("PathWeight: " + pathWeight);
+                            for (int i = 0; i < options.size(); i++) {
+                                pathWeight.set(i, pathWeight.get(i) + (pathDistance.get(i) * 10));
+                            }
+                            //System.out.println("PathWeight: " + pathWeight);
+
+                            //Determine the probability ranges
+                            for (Integer i : pathWeight) {
+                                range += i;
+                                ranges.add(range);
+                            }
+                        }
+                    }
+
+                    //System.out.println("Range: " + range);
                     moveto = rand.nextInt(range);
 
                     for (int i = 0; i < ranges.size() && next == -1; i++){
@@ -97,6 +139,8 @@ public class Ant {
                 System.out.println();
                 System.out.println("ERROR in getNextStep");
                 System.out.println(e.toString());
+                System.out.println(e.getMessage());
+
             }
             return nextStep;
         }

@@ -1,7 +1,6 @@
 /*
   Class to produce solutions to the Set Cover Problem by implementing parellel Ant Colony Optimisation.
     ConnorFergusson_1299038_HannahTrebes_1306378
-
     Command Line:
     javac *.java && java SCP <TEST_FILE>.txt <COLONY_SIZE> <GENERATION_SIZE>
 */
@@ -33,6 +32,7 @@ public class SCPParallel{
     public static String[] inString;
     public static ArrayList<Integer> bestPath;// = new ArrayList<Integer>();
     public static ArrayList<Integer> pheremones = new ArrayList<Integer>();
+    public static ArrayList<Integer> visited = new ArrayList<Integer>();
 
 
     public static void main(String[] args) {
@@ -83,6 +83,8 @@ public class SCPParallel{
 
             //Output final results
             System.out.println();
+            System.out.println("Number of times each node visited: ");
+            System.out.println(visited);
             System.out.println("Final Pheremone strengths: ");
             System.out.println(pheremones);
             System.out.println("Degrading by: " + degrade);
@@ -144,14 +146,15 @@ public class SCPParallel{
 
                 //Create a blank pheremone
                 pheremones.add(0);
+                visited.add(0);
             }
             System.out.println("Sets: " + sets);
 
             //Create the pheremones
-            System.out.println("PheremoneSize: " + pheremones.size());
+            //System.out.println("PheremoneSize: " + pheremones.size());
 
             //Set the degradation
-            degrade = generationSize;
+            //degrade = generationSize/2;
 
         }catch(FileNotFoundException e){System.out.println("File Not Found : " + filename);}
         catch(Exception e){
@@ -206,9 +209,11 @@ public class SCPParallel{
         }
 
         //Create the pheremone trail
-        for (Ant a:colony) {
-            for (Integer i: a.Path) {
-                pheremones.set(i, pheremones.get(i) + 1);
+        for (int i = 0; i<generationSize;i++) {
+            Ant a = colony.get(i + adjust);
+            for (Integer k: a.Path) {
+                pheremones.set(k, pheremones.get(k) + 1);
+                visited.set(k, visited.get(k) + 1);
             }
         }
 

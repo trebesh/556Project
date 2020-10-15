@@ -177,6 +177,7 @@ public class SCP {
 
     // Runs the current generation through
     public static void runGeneration(){
+        System.out.print(".");
         int adjust = generationSize*generation;
          //Send out the ants to their start points
          for (int i = generationSize -1; i>0; i--) {
@@ -199,17 +200,17 @@ public class SCP {
         }
 
         generation++;
-        System.out.println("Generation: " + generation);
+        //System.out.println("Generation: " + generation);
 
         //Degrade the pheremone trail if applicable
-        System.out.println("Pheremones: " + pheremones);
+        //System.out.println("Pheremones: " + pheremones);
         if(generation > 1){
             for (int i = 0; i < pheremones.size(); i++){
                 pheremones.set(i, pheremones.get(i) - degrade);
                 if (pheremones.get(i) < 0) pheremones.set(i, 0);
             }
         }
-        System.out.println("Pheremones: " + pheremones);
+        //System.out.println("Pheremones: " + pheremones);
 
         //printColony();
 //        System.out.println("Adjust by " + adjust);
