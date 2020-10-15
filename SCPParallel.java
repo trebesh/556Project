@@ -11,9 +11,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 
 public class SCPParallel{
 
+
+    public static CountDownLatch latch;
     public static int adjust;
     public static int colonySize = 0;
     public static int generation = 0;
@@ -53,7 +56,7 @@ public class SCPParallel{
             System.out.println();
             System.out.println("Final Paths: ");
             printColony();
-            
+
 
             //Calculate final Results
             int bi = 0;
@@ -167,7 +170,7 @@ public class SCPParallel{
         try {
             //Figure out how big the colony and each generation should be - relative to the number of sets in the search space
             // Naieve - one ant for every set in sets, one generation
-            
+
             //Create the colony
             while (colony.size() < colonySize) {
                 colony.add(new Ant());
@@ -184,15 +187,22 @@ public class SCPParallel{
     // Runs the current generation through
     public static void runGeneration(){
         adjust = generationSize*generation;
-         //Send out the ants to their start points
-         for (int i = generationSize -1; i>0; i--) {
+        //Send out the ants to their start points
+        for (int i = generationSize -1; i>0; i--) {
             colony.get(i + adjust).startPositions(sets);
         }
-
+        latch = new CountDownLatch(generationSize);
         //move the ants out until they have found a valid solution or seen all nodes
         for (int i = 0; i<generationSize;i++) {
             Generation temp = new Generation(i);
             temp.start();
+        }
+        try {
+            latch.await();
+        }
+        catch(Exception e)
+        {
+            System.out.println("error in latch.await");
         }
 
         //Create the pheremone trail
@@ -244,5 +254,6 @@ class Generation extends Thread {
 
             SCPParallel.colony.get(k + SCPParallel.adjust).addToPath(SCPParallel.colony.get(k + SCPParallel.adjust).getNextStep(SCPParallel.sets, SCPParallel.pheremones));
         }
+        SCPParallel.latch.countDown();
     }
 }
