@@ -12,7 +12,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SCP{
+public class SCPParallel{
 
     public static int adjust;
     public static int colonySize = 0;
@@ -203,17 +203,17 @@ public class SCP{
         }
 
         generation++;
-        System.out.println("Generation: " + generation);
+        //System.out.println("Generation: " + generation);
 
         //Degrade the pheremone trail if applicable
-        System.out.println("Pheremones: " + pheremones);
+        //System.out.println("Pheremones: " + pheremones);
         if(generation > 1){
             for (int i = 0; i < pheremones.size(); i++){
                 pheremones.set(i, pheremones.get(i) - degrade);
                 if (pheremones.get(i) < 0) pheremones.set(i, 0);
             }
         }
-        System.out.println("Pheremones: " + pheremones);
+        //System.out.println("Pheremones: " + pheremones);
 
         //printColony();
 //        System.out.println("Adjust by " + adjust);
@@ -236,9 +236,13 @@ class Generation extends Thread {
     }
     public void run(){
         System.out.println("Thread: " + k);
-        while (SCP.colony.get(k + SCP.adjust).seenAll == false && SCP.colony.get(k + SCP.adjust).seenAllNumbers(SCP.universe, SCP.sets) == false){
+        while (SCPParallel.colony.get(k + SCPParallel.adjust).seenAll == false
+                && SCPParallel.colony.get(k + SCPParallel.adjust).seenAllNumbers(SCPParallel.universe, SCPParallel.sets) == false){
             //System.out.println("Ant " + (i + adjust));
-            SCP.colony.get(k + SCP.adjust).addToPath(SCP.colony.get(k + SCP.adjust).getNextStep(SCP.sets, SCP.pheremones));
+
+
+
+            SCPParallel.colony.get(k + SCPParallel.adjust).addToPath(SCPParallel.colony.get(k + SCPParallel.adjust).getNextStep(SCPParallel.sets, SCPParallel.pheremones));
         }
     }
 }
