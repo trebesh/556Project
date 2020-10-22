@@ -37,6 +37,8 @@ public class SCPParallel{
 
     public static void main(String[] args) {
         try{
+
+            long startTime = System.nanoTime();
             filename = args[0];
             colonySize = Integer.parseInt(args[1]);
             generationSize = Integer.parseInt(args[2]);
@@ -80,7 +82,7 @@ public class SCPParallel{
                 averageLength += colony.get(i).Path.size();
             }
             averageLength = averageLength/colony.size();
-
+            long endTime = System.nanoTime();
             //Output final results
             System.out.println();
             System.out.println("Number of times each node visited: ");
@@ -103,6 +105,8 @@ public class SCPParallel{
             System.out.println("   Length of worst path: " + worstsize);
             System.out.println("   Number of times worst path seen: " + numWorst);
             System.out.println("   Average path length: " + averageLength);
+            long totalTime = (endTime -startTime) / 1000000000;
+            System.out.println("Took "+(totalTime) + " seconds");
 
 
         }catch (Exception e){
@@ -262,3 +266,4 @@ class Generation extends Thread {
         SCPParallel.latch.countDown();
     }
 }
+
