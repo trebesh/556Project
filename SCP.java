@@ -33,6 +33,7 @@ public class SCP {
 
     public static void main(String[] args) {
         try{
+            long startTime = System.nanoTime();
             filename = args[0];
             colonySize = Integer.parseInt(args[1]);
             generationSize = Integer.parseInt(args[2]);
@@ -76,6 +77,7 @@ public class SCP {
             }
             averageLength = averageLength/colony.size();
 
+            long endTime = System.nanoTime();
             //Output final results
             System.out.println();
             System.out.println("Final Pheremone strengths: ");
@@ -97,6 +99,8 @@ public class SCP {
             System.out.println("   Number of times worst path seen: " + numWorst);
             System.out.println("   Average path length: " + averageLength);
 
+            long totalTime = (endTime -startTime) / 1000000000;
+            System.out.println("Took "+(totalTime) + " seconds");
 
         }catch (Exception e){
             System.out.println("ERROR in Main: " + e.getMessage());
