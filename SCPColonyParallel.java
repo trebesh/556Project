@@ -16,7 +16,6 @@ public class SCPColonyParallel{
 
     public static int numColonies;
     public static CountDownLatch latch2;
-    public static int adjust;
     public static int colonySize = 0;
     public static int generationSize = 0;
     public static int numGenerations = 0;
@@ -158,8 +157,6 @@ public class SCPColonyParallel{
                 line = reader.readLine();
 
                 //Create a blank pheremone
-                pheremones.add(0);
-                visited.add(0);
             }
             System.out.println("Sets: " + sets);
 
@@ -197,28 +194,26 @@ public class SCPColonyParallel{
             }
 
         }catch(Exception e){
-            System.out.println("ERROR in createColony");
-            System.out.println("Colony: " + colony);
-            System.out.println();
             System.out.println(e.toString());
         }
     }
 
     // Runs the current generation through
     public static void runGeneration(int k){
-        adjust = generationSize*numColonies.get(k).generation;
+        allColonies.get(k).adjust = generationSize*allColonies.get(k).generation;
+        System.out.println(allColonies.get(k).adjust);
         //Send out the ants to their start points
         for (int i = generationSize -1; i>0; i--) {
-            numColonies.get(k).getColony().get(i + adjust).startPositions(sets);
+            allColonies.get(k).getColony().get(i + allColonies.get(k).adjust).startPositions(sets);
         }
-        Colony.latch = new CountDownLatch(generationSize);
+        SCPColonyParallel.allColonies.get(k).latch = new CountDownLatch(generationSize);
         //move the ants out until they have found a valid solution or seen all nodes
         for (int i = 0; i<generationSize;i++) {
             ColonyGeneration temp = new ColonyGeneration(i, k);
             temp.start();
         }
         try {
-            latch.await();
+            SCPColonyParallel.allColonies.get(k).latch.await();
         }
         catch(Exception e)
         {
@@ -227,22 +222,22 @@ public class SCPColonyParallel{
 
         //Create the pheremone trail
         for (int i = 0; i<generationSize;i++) {
-            Ant a = numColonies.get(k).getColony().get(i + adjust);
+            Ant a = allColonies.get(k).getColony().get(i + allColonies.get(k).adjust);
             for (Integer l: a.Path) {
-                numColonies.get(k).getPheremones.set(l, numColonies.get(k).getPheremones.get(l) + 1);
-                numColonies.get(k).getVisited.set(l, numColonies.get(k).getVisited.get(l) + 1);
+                allColonies.get(k).getPheremones().set(l, allColonies.get(k).getPheremones().get(l) + 1);
+                allColonies.get(k).getVisited().set(l, allColonies.get(k).getVisited().get(l) + 1);
             }
         }
 
-        numColonies.get(k).generation +=1;
+        allColonies.get(k).generation +=1;
         //System.out.println("Generation: " + generation);
 
         //Degrade the pheremone trail if applicable
         //System.out.println("Pheremones: " + pheremones);
-        if(numColonies.get(k).generation > 1){
-            for (int i = 0; i < numColonies.get(k).getPheremones.size(); i++){
-                numColonies.get(k).getPheremones.set(i, numColonies.get(k).getPheremones.get(i) - degrade);
-                if (numColonies.get(k).getPheremones.get(i) < 0) numColonies.get(k).getPheremones.set(i, 0);
+        if(allColonies.get(k).generation > 1){
+            for (int i = 0; i < allColonies.get(k).getPheremones().size(); i++){
+                allColonies.get(k).getPheremones().set(i, allColonies.get(k).getPheremones().get(i) - degrade);
+                if (allColonies.get(k).getPheremones().get(i) < 0) allColonies.get(k).getPheremones().set(i, 0);
             }
         }
         //System.out.println("Pheremones: " + pheremones);
@@ -271,15 +266,14 @@ class ColonyGeneration extends Thread {
 
     public void run(){
         System.out.println(" Generation Thread: " + k + " for colony: " + colony);
-        while (SCPParallel.colony.get(k + SCPParallel.adjust).seenAll == false
-                && SCPParallel.colony.get(k + SCPParallel.adjust).seenAllNumbers(SCPParallel.universe, SCPParallel.sets) == false){
+        while (SCPColonyParallel.allColonies.get(colony).getColony().get(k + SCPColonyParallel.allColonies.get(colony).adjust).seenAll == false
+                && SCPColonyParallel.allColonies.get(colony).getColony().get(k + SCPColonyParallel.allColonies.get(colony).adjust).seenAllNumbers(SCPColonyParallel.universe, SCPColonyParallel.sets) == false){
             //System.out.println("Ant " + (i + adjust));
 
 
-
-            SCPParallel.colony.get(k + SCPParallel.adjust).addToPath(SCPParallel.colony.get(k + SCPParallel.adjust).getNextStep(SCPParallel.sets, SCPParallel.pheremones));
+            SCPColonyParallel.allColonies.get(colony).getColony().get(k + SCPColonyParallel.allColonies.get(colony).adjust).addToPath(SCPColonyParallel.allColonies.get(colony).getColony().get(k + SCPColonyParallel.allColonies.get(colony).adjust).getNextStep(SCPColonyParallel.sets, SCPColonyParallel.allColonies.get(colony).getPheremones()));
         }
-        Colony.latch.countDown();
+        SCPColonyParallel.allColonies.get(colony).latch.countDown();
     }
 }
 
@@ -289,10 +283,20 @@ class Colony extends Thread{
     public ArrayList<Integer> bestPath;
     public ArrayList<Integer> pheremones = new ArrayList<Integer>();
     public ArrayList<Integer> visited = new ArrayList<Integer>();
-    public static CountDownLatch latch;
+    public CountDownLatch latch;
+    public int adjust;
     public int generation = 0;
     public Colony(int i) {
         k=i;
+        for(int j = 0; j<SCPColonyParallel.sets.size(); j++)
+        {
+            pheremones.add(0);
+            visited.add(0);
+        } 
+    }
+    public int getK()
+    {
+        return k;
     }
 
     public ArrayList<Integer> getVisited() {
@@ -312,6 +316,7 @@ class Colony extends Thread{
         while (colony.size() < SCPColonyParallel.colonySize) {
             colony.add(new Ant());
         }
+
         //Run generation till all ants have visited all nodes
         for (int i = 0; i < SCPColonyParallel.numGenerations; i++) SCPColonyParallel.runGeneration(k);
 
