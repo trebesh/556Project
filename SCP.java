@@ -1,5 +1,5 @@
 /*
-  Class to produce solutions to the Set Cover Problem by implementing parellel Ant Colony Optimisation.
+  Class to produce solutions to the Set Cover Problem by implementing serial Ant Colony Optimisation.
     ConnorFergusson_1299038_HannahTrebes_1306378
 
     Command Line:
@@ -27,13 +27,15 @@ public class SCP {
     public static ArrayList<Integer> set = new ArrayList<Integer>();
     public static ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
     public static String[] inString;
-    public static ArrayList<Integer> bestPath;// = new ArrayList<Integer>();
+    public static ArrayList<Integer> bestPath;
     public static ArrayList<Integer> pheremones = new ArrayList<Integer>();
-
 
     public static void main(String[] args) {
         try{
+            //get the time the program started
             long startTime = System.nanoTime();
+
+            //get the arguments sent from the command line
             filename = args[0];
             colonySize = Integer.parseInt(args[1]);
             generationSize = Integer.parseInt(args[2]);
@@ -77,6 +79,7 @@ public class SCP {
             }
             averageLength = averageLength/colony.size();
 
+            //get the time the program finished running
             long endTime = System.nanoTime();
             //Output final results
             System.out.println();
@@ -99,6 +102,7 @@ public class SCP {
             System.out.println("   Number of times worst path seen: " + numWorst);
             System.out.println("   Average path length: " + averageLength);
 
+            //get the difference in start time and end time in seconds
             long totalTime = (endTime -startTime) / 1000000000;
             System.out.println("Took "+(totalTime) + " seconds");
 
@@ -191,7 +195,6 @@ public class SCP {
         //move the ants out until they have found a valid solution or seen all nodes
         for (int i = 0; i<generationSize;i++) {
             while (colony.get(i + adjust).seenAll == false && colony.get(i + adjust).seenAllNumbers(universe, sets) == false){
-                //System.out.println("Ant " + (i + adjust));
                 colony.get(i + adjust).addToPath(colony.get(i + adjust).getNextStep(sets, pheremones));
             }
         }
@@ -202,22 +205,15 @@ public class SCP {
                 pheremones.set(i, pheremones.get(i) + 1);
             }
         }
-
+        //move to the next generation of ants
         generation++;
-        //System.out.println("Generation: " + generation);
-
-        //Degrade the pheremone trail if applicable
-        //System.out.println("Pheremones: " + pheremones);
+        //if this is not the first generation, degrade the pheremone trail
         if(generation > 1){
             for (int i = 0; i < pheremones.size(); i++){
                 pheremones.set(i, pheremones.get(i) - degrade);
                 if (pheremones.get(i) < 0) pheremones.set(i, 0);
             }
         }
-        //System.out.println("Pheremones: " + pheremones);
-
-        //printColony();
-//        System.out.println("Adjust by " + adjust);
     }
 
     //Auxillary method to output the colony

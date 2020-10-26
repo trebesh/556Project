@@ -14,8 +14,10 @@ import java.util.concurrent.CountDownLatch;
 
 public class SCPParallel{
 
-
+    //a latch that counts down every time a thread has completed
     public static CountDownLatch latch;
+
+    //other variables
     public static int adjust;
     public static int colonySize = 0;
     public static int generation = 0;
@@ -37,7 +39,6 @@ public class SCPParallel{
 
     public static void main(String[] args) {
         try{
-
             long startTime = System.nanoTime();
             filename = args[0];
             colonySize = Integer.parseInt(args[1]);
@@ -148,7 +149,7 @@ public class SCPParallel{
                 set = new ArrayList<Integer>();
                 line = reader.readLine();
 
-                //Create a blank pheremone
+                //Create a blank pheromone
                 pheremones.add(0);
                 visited.add(0);
             }
@@ -198,13 +199,17 @@ public class SCPParallel{
         for (int i = generationSize -1; i>0; i--) {
             colony.get(i + adjust).startPositions(sets);
         }
+        //initialises the latch with a counter for each ant in a generation
         latch = new CountDownLatch(generationSize);
         //move the ants out until they have found a valid solution or seen all nodes
+        //create a new thread for each ant in the generation
         for (int i = 0; i<generationSize;i++) {
             Generation temp = new Generation(i);
+            //starts the new thread
             temp.start();
         }
         try {
+            //wait until all the ants in a generation have completed their paths
             latch.await();
         }
         catch(Exception e)
@@ -222,20 +227,14 @@ public class SCPParallel{
         }
 
         generation++;
-        //System.out.println("Generation: " + generation);
-
-        //Degrade the pheremone trail if applicable
-        //System.out.println("Pheremones: " + pheremones);
+        //degrade the pheremone trail
         if(generation > 1){
             for (int i = 0; i < pheremones.size(); i++){
                 pheremones.set(i, pheremones.get(i) - degrade);
                 if (pheremones.get(i) < 0) pheremones.set(i, 0);
             }
         }
-        //System.out.println("Pheremones: " + pheremones);
 
-        //printColony();
-//        System.out.println("Adjust by " + adjust);
     }
 
     //Auxillary method to output the colony
@@ -246,23 +245,27 @@ public class SCPParallel{
     }
 }
 
+//a class to define a generation that is able to be made a thread
 class Generation extends Thread {
 
+    //integer to store the generation
     int k;
+    //create a new generation
     public Generation(int i)
     {
         k = i;
     }
+    //this will execute when a new generation thread is started
     public void run(){
+        //print out what thread is running
         System.out.println("Thread: " + k);
+        //while the ant in the current thread hasnt seen all the nubmers
         while (SCPParallel.colony.get(k + SCPParallel.adjust).seenAll == false
                 && SCPParallel.colony.get(k + SCPParallel.adjust).seenAllNumbers(SCPParallel.universe, SCPParallel.sets) == false){
-            //System.out.println("Ant " + (i + adjust));
-
-
-
+            //get the ants next step
             SCPParallel.colony.get(k + SCPParallel.adjust).addToPath(SCPParallel.colony.get(k + SCPParallel.adjust).getNextStep(SCPParallel.sets, SCPParallel.pheremones));
         }
+        //counts down the latch when the ant has seen all the numbers
         SCPParallel.latch.countDown();
     }
 }
